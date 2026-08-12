@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interactif — Linguistique Française (Chapitre 2)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-main: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #c7d2fe;
+            font-size: 16px;
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            background-color: #e2e8f0;
+            color: var(--text-dark);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .quiz-section {
+            display: none;
+        }
+
+        .quiz-section.active {
+            display: block;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .question-number {
+            display: inline-block;
+            background-color: #e0e7ff;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        .question-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 18px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            padding: 14px 18px;
+            text-align: left;
+            background-color: #f8fafc;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #edf2f7;
+            border-color: var(--primary);
+        }
+
+        .option-btn.selected-correct {
+            background-color: var(--success-bg);
+            border-color: var(--success);
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .option-btn.selected-wrong {
+            background-color: var(--danger-bg);
+            border-color: var(--danger);
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .option-btn.show-correct {
+            border-color: var(--success);
+            background-color: var(--success-bg);
+        }
+
+        .explanation-box {
+            display: none;
+            margin-top: 15px;
+            padding: 15px 18px;
+            border-radius: 10px;
+            background-color: #f5f3ff;
+            border-left: 4px solid var(--primary);
+            font-size: 14px;
+            color: #312e81;
+        }
+
+        .explanation-box.visible {
+            display: block;
+        }
+
+        .score-banner {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 20px;
+            margin-top: 30px;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Quiz Interactif de Linguistique Française</h1>
+        <p>Chapitre 2 : La Communication et le Signe Linguistique (Auto-évaluation)</p>
+    </header>
+
+    <!-- Navigation par Onglets -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('concepts')">
+            <i class="fa-solid fa-brain"></i> Quiz 1 : Concepts Clés (10)
+        </button>
+        <button class="tab-btn" onclick="switchTab('examples')">
+            <i class="fa-solid fa-vial"></i> Quiz 2 : Exemples Pratiques (10)
+        </button>
+    </div>
+
+    <!-- SECTION 1: CONCEPTS CLES -->
+    <div id="concepts" class="quiz-section active">
+        <div id="quiz-concepts-container"></div>
+        <div id="score-concepts" class="score-banner">Score : 0 / 10</div>
+    </div>
+
+    <!-- SECTION 2: EXEMPLES PRATIQUES -->
+    <div id="examples" class="quiz-section">
+        <div id="quiz-examples-container"></div>
+        <div id="score-examples" class="score-banner">Score : 0 / 10</div>
+    </div>
+</div>
+
+<script>
+// Données des Quiz (10 Concepts + 10 Exemples Pratiques)
+const conceptsQuestions = [
+    {
+        id: 1,
+        title: "Quelles sont les trois étapes fondamentales de la boucle de la communication ?",
+        options: [
+            "L'encodage, le bruit et le décodage",
+            "La production, la transmission et la réception",
+            "La parole, la langue et le signe",
+            "L'émission, la rétroaction et l'interprétation"
+        ],
+        answer: 1,
+        explanation: "Selon le texte du cours, le processus d'échange des messages implique trois étapes : la production (centrée sur l'émetteur), la transmission (centrée sur le signal/canal) et la réception (centrée sur le récepteur)."
+    },
+    {
+        id: 2,
+        title: "Comment se définit un 'indice' par rapport à un 'signal' ?",
+        options: [
+            "L'indice est un signe sonore alors que le signal est visuel",
+            "L'indice est une manifestation involontaire, tandis que le signal est instauré volontairement par convention",
+            "L'indice nécessite un code complexe, alors que le signal n'a pas de code",
+            "L'indice appartient toujours au code linguistique humain"
+        ],
+        answer: 1,
+        explanation: "Un indice est une information observable involontaire (ex. fièvre, voix aiguë). En revanche, un signal est émis intentionnellement selon un code conventionnel fixé d'avance (ex. feu rouge, sirène)."
+    },
+    {
+        id: 3,
+        title: "Selon Ferdinand de Saussure, de quoi est composé le signe linguistique ?",
+        options: [
+            "D'un mot écrit et d'une chose réelle dans le monde extérieur",
+            "D'une lettre et d'une définition du dictionnaire",
+            "D'un concept (signifié) et d'une image acoustique (signifiant)",
+            "D'un symbole graphique et d'un signal visuel"
+        ],
+        answer: 2,
+        explanation: "Saussure définit le signe comme une entité psychique à deux faces indissociables : le signifié (concept) et le signifiant (image acoustique mentale du son)."
+    },
+    {
+        id: 4,
+        title: "Que signifie le principe de 'l'arbitraire du signe' en linguistique ?",
+        options: [
+            "Que le locuteur peut changer le nom des objets à sa guise quand il parle",
+            "Qu'il n'y a pas de lien logique ou naturel entre le signifiant et le signifié",
+            "Que les mots sont choisis au hasard par l'Académie française",
+            "Que les signes linguistiques ne signifient rien de précis"
+        ],
+        answer: 1,
+        explanation: "L'arbitraire signifie qu'il n'y a aucune justification naturelle ou logique pour associer un signifiant donné à un signifié (ex. le concept d'un canidé s'appelle 'chien' en français, 'dog' en anglais)."
+    },
+    {
+        id: 5,
+        title: "Quelle est la caractéristique essentielle d'un circuit de communication bilatéral ?",
+        options: [
+            "Le message est transmis par deux canaux simultanément",
+            "L'émetteur et le récepteur peuvent fonctionner alternativement dans les deux sens",
+            "Le message est codé à la fois en français et en anglais",
+            "Le signal est transmis sans aucun bruit"
+        ],
+        answer: 1,
+        explanation: "Dans une communication bilatérale, les rôles d'émetteur et de récepteur alternent continuellement (ex. une conversation téléphonique), contrairement à la communication unilatérale (ex. la radio)."
+    },
+    {
+        id: 6,
+        title: "Du point de vue linguistique, comment définit-on la 'signification' ?",
+        options: [
+            "La recherche de l'étymologie historique d'un terme",
+            "La définition littérale fournie par le dictionnaire",
+            "Le passage psychique du signifiant au signifié (ou vice-versa)",
+            "La traduction exacte d'un mot dans une autre langue"
+        ],
+        answer: 2,
+        explanation: "En linguistique, la signification désigne précisément la relation et le passage entre le signifiant et le signifié, constituant la base de toute communication."
+    },
+    {
+        id: 7,
+        title: "Les signes d'un code possèdent-ils un sens inhérent et universel ?",
+        options: [
+            "Oui, tous les signes ont un sens universel identique dans toutes les cultures",
+            "Non, un signe doit être interprété selon les règles conventionnelles d'un code spécifique",
+            "Oui, car la nature fixe le sens de tous les symboles",
+            "Seulement les signes écrits"
+        ],
+        answer: 1,
+        explanation: "Un signe n'a pas de sens inhérent ou universel : sa valeur et son sens dépendent strictement du système de règles du code au sein duquel il est placé."
+    },
+    {
+        id: 8,
+        title: "Parmi les éléments suivants, quelles sont les exceptions au principe général de l'arbitraire du signe ?",
+        options: [
+            "Les verbes du premier groupe et les noms communs",
+            "Les onomatopées et les signifiants très suggestifs",
+            "Les pronoms personnels et les prépositions",
+            "Les sigles et les abréviations"
+        ],
+        answer: 1,
+        explanation: "Les onomatopées (plouf, tic-tac) et les mots suggestifs (chahuter, siffler, hululer) présentent une analogie ou motivation partielle entre le signifiant et la réalité qu'ils évoquent."
+    },
+    {
+        id: 9,
+        title: "Que désigne la notion de 'bruit' dans la phase de transmission ?",
+        options: [
+            "Le volume sonore de la voix du locuteur",
+            "Toute perturbation modifiant le signal lors de son passage dans le canal",
+            "Les fautes de grammaire commises par l'émetteur",
+            "L'accent régional de la personne qui parle"
+        ],
+        answer: 1,
+        explanation: "Le bruit désigne l'ensemble des perturbations physiques ou techniques survenant dans le canal de transmission et susceptibles d'altérer la réception claire du signal."
+    },
+    {
+        id: 10,
+        title: "Le signifiant saussurien est-il le son physique réel produit par la bouche ?",
+        options: [
+            "Oui, c'est exactement l'onde sonore mesurable en hertz",
+            "Non, c'est une représentation psychique ou image mentale du son",
+            "Oui, car Saussure refuse toute dimension psychologique",
+            "Non, c'est uniquement la lettre écrite sur le papier"
+        ],
+        answer: 1,
+        explanation: "Saussure insiste sur le fait que le signe est une entité psychique : le signifiant n'est pas le son physique matériel, mais l'image acoustique mentale que nous en avons."
+    }
+];
+
+const examplesQuestions = [
+    {
+        id: 1,
+        title: "Une personne greffée de fièvre présente une température de 39°C. De quel type de signe s'agit-il ?",
+        options: [
+            "Un signal conventionnel",
+            "Un indice involontaire",
+            "Un code linguistique",
+            "Une onomatopée"
+        ],
+        answer: 1,
+        explanation: "La fièvre est une réaction involontaire du système immunitaire face à des agents pathogènes. C'est un indice observable et non un signal émis avec l'intention de communiquer."
+    },
+    {
+        id: 2,
+        title: "Au volant, vous apercevez un triangle jaune inversé. Que vous indique ce signe selon le code de la route ?",
+        options: [
+            "C'est un indice qu'un accident vient d'avoir lieu",
+            "C'est un signal conventionnel indiquant que vous n'avez pas la priorité",
+            "C'est une onomatopée visuelle sans convention",
+            "C'est une communication bilatérale immédiate"
+        ],
+        answer: 1,
+        explanation: "Le triangle jaune inversé est un signal instauré volontairement par convention sociale pour informer l'usager qu'il doit céder le passage (absence de priorité)."
+    },
+    {
+        id: 3,
+        title: "Vous écoutez une émission de radio chez vous. De quel type de communication s'agit-il ?",
+        options: [
+            "Une communication bilatérale réciproque",
+            "Une communication unilatérale",
+            "Une communication olfactive",
+            "Un échange kinésique"
+        ],
+        answer: 1,
+        explanation: "C'est une communication unilatérale : l'auditeur reçoit le message sans pouvoir intervenir ni modifier en temps réel l'émission de la radio."
+    },
+    {
+        id: 4,
+        title: "Un loup délimite les contours de son territoire en urinant. Quel canal et mode de réception sont sollicités ?",
+        options: [
+            "Émission gestuelle / Réception optique",
+            "Émission chimique-olfactive / Réception olfactive",
+            "Émission acoustique / Réception auditive",
+            "Émission kinésique / Réception tactile"
+        ],
+        answer: 1,
+        explanation: "Comme indiqué dans le Tableau 2.1 du chapitre, les marques d'urine sont des signaux olfactifs captés par l'odorat (réception olfactive) pour borner un territoire."
+    },
+    {
+        id: 5,
+        title: "La forme écrite 'X' dans une équation comme 2x + 5 = 15 représente :",
+        options: [
+            "Interdiction de fumer",
+            "La lettre X de l'alphabet dans le code linguistique",
+            "Une valeur inconnue dans le code mathématique",
+            "Une faute de grammaire"
+        ],
+        answer: 2,
+        explanation: "Cet exemple illustre que la forme 'X' n'a pas de sens universel : dans le code mathématique algébrique, elle désigne une valeur inconnue."
+    },
+    {
+        id: 6,
+        title: "Le mot 'tic-tac' pour désigner le bruit d'une horloge est un exemple de :",
+        options: [
+            "Signe entièrement arbitraire",
+            "Onomatopée (exception au principe d'arbitraire du signe)",
+            "Indice médical involontaire",
+            "Code olfactif"
+        ],
+        answer: 1,
+        explanation: "'Tic-tac' est une onomatopée, c'est-à-dire un signe motivé où le signifiant est une tentative d'imitation acoustique du bruit de l'objet."
+    },
+    {
+        id: 7,
+        title: "Un ami vous parle au téléphone avec une voix tremblante et très aiguë. Vous déduisez qu'il est effrayé. Que représente la voix aiguë ici ?",
+        options: [
+            "Le message linguistique principal",
+            "Un indice involontaire accompagnant le signal verbal",
+            "Un code routier",
+            "Un symbole arbitraire écrit"
+        ],
+        answer: 1,
+        explanation: "La voix aiguë/tremblante est un indice vocal involontaire qui accompagne l'énoncé et vous informe sur l'état émotionnel (la peur) du locuteur."
+    },
+    {
+        id: 8,
+        title: "Le concept d'un animal domestique félin est désigné par 'chat' en français, 'cat' en anglais et 'Katze' en allemand. Cela prouve :",
+        options: [
+            "Que la communication est impossible entre les pays",
+            "Le principe de l'arbitraire du signe linguistique",
+            "Que le mot anglais est plus logique que le mot français",
+            "Que les animaux possèdent leur propre langue"
+        ],
+        answer: 1,
+        explanation: "La diversité des signifiants (chat, cat, Katze, gatto) pour un même concept (signifié) démontre que le lien entre le son et l'idée est arbitraire et conventionnel."
+    },
+    {
+        id: 9,
+        title: "Quand la voix monte à la fin d'un énoncé comme 'Vous venez ?', ce changement de hauteur vocale est :",
+        options: [
+            "Un bruit de transmission",
+            "Le signal d'une question en français",
+            "Un indice médical de fatigue",
+            "Un signe olfactif"
+        ],
+        answer: 1,
+        explanation: "L'intonation montante en fin de phrase est le signal grammatical volontaire d'une question à l'oral (marqué par un point d'interrogation à l'écrit)."
+    },
+    {
+        id: 10,
+        title: "Un berger utilise une pression ferme de la main sur l'épaule de son chien pour le faire s'asseoir. De quel mode de communication s'agit-il ?",
+        options: [
+            "Signaux kinésiques / Réception tactile",
+            "Signaux olfactifs / Réception auditive",
+            "Communication unilatérale optique",
+            "Langue des signes saussurienne"
+        ],
+        answer: 0,
+        explanation: "La pression ou caresse physique relève des signaux kinésiques avec mode de réception tactile (Tableau 2.1)."
+    }
+];
+
+// Rendu des Quiz
+function renderQuiz(questions, containerId, prefix) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = questions.map((q, qIndex) => `
+        <div class="question-card" id="card-${prefix}-${qIndex}">
+            <span class="question-number">Question ${q.id} / 10</span>
+            <div class="question-title">${q.title}</div>
+            <div class="options-list">
+                ${q.options.map((opt, optIndex) => `
+                    <button class="option-btn" id="btn-${prefix}-${qIndex}-${optIndex}" onclick="checkAnswer('${prefix}', ${qIndex}, ${optIndex})">
+                        ${String.fromCharCode(65 + optIndex)}. ${opt}
+                    </button>
+                `).join('')}
+            </div>
+            <div class="explanation-box" id="exp-${prefix}-${qIndex}">
+                <strong>💡 Explication linguistique :</strong> ${q.explanation}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Suivi des scores
+let scores = { concepts: 0, examples: 0 };
+let answered = { concepts: {}, examples: {} };
+
+function checkAnswer(prefix, qIndex, selectedOpt) {
+    if (answered[prefix][qIndex]) return; // Empêcher de re-répondre
+    answered[prefix][qIndex] = true;
+
+    const questions = prefix === 'concepts' ? conceptsQuestions : examplesQuestions;
+    const q = questions[qIndex];
+    const correctOpt = q.answer;
+
+    const expBox = document.getElementById(`exp-${prefix}-${qIndex}`);
+    expBox.classList.add('visible');
+
+    for (let i = 0; i < q.options.length; i++) {
+        const btn = document.getElementById(`btn-${prefix}-${qIndex}-${i}`);
+        btn.disabled = true;
+
+        if (i === correctOpt) {
+            btn.classList.add('show-correct');
+        }
+
+        if (i === selectedOpt) {
+            if (selectedOpt === correctOpt) {
+                btn.classList.add('selected-correct');
+                scores[prefix]++;
+            } else {
+                btn.classList.add('selected-wrong');
+            }
+        }
+    }
+
+    // Mise à jour du score
+    document.getElementById(`score-${prefix}`).innerText = `Score : ${scores[prefix]} / 10`;
+}
+
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.quiz-section').forEach(sec => sec.classList.remove('active'));
+
+    document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+}
+
+// Initialisation
+window.onload = () => {
+    renderQuiz(conceptsQuestions, 'quiz-concepts-container', 'concepts');
+    renderQuiz(examplesQuestions, 'quiz-examples-container', 'examples');
+};
+</script>
+
+</body>
+</html>
