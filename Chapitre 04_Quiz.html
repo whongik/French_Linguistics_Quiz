@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interactif : Phonétique et Voyelles Françaises</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --accent: #d97706;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --correct: #16a34a;
+            --correct-bg: #f0fdf4;
+            --incorrect: #dc2626;
+            --incorrect-bg: #fef2f2;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #cbd5e1;
+            font-size: 16px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--border);
+            background-color: var(--card-bg);
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+        }
+
+        .score-banner {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .score-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .score-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .progress-bar-bg {
+            width: 200px;
+            height: 10px;
+            background-color: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary-light);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .q-number {
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            background-color: #fef3c7;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .q-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            padding: 14px 18px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background-color: var(--card-bg);
+            text-align: left;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            border-color: var(--primary-light);
+            background-color: #f0f9ff;
+        }
+
+        .option-btn.selected-correct {
+            border-color: var(--correct);
+            background-color: var(--correct-bg);
+            color: var(--correct);
+            font-weight: 700;
+        }
+
+        .option-btn.selected-incorrect {
+            border-color: var(--incorrect);
+            background-color: var(--incorrect-bg);
+            color: var(--incorrect);
+            font-weight: 700;
+        }
+
+        .option-btn.disabled {
+            cursor: default;
+            opacity: 0.85;
+        }
+
+        .explanation-box {
+            display: none;
+            padding: 18px;
+            border-radius: 10px;
+            background-color: #f1f5f9;
+            border-left: 4px solid var(--primary);
+            margin-top: 16px;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .explanation-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .ipa {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--accent);
+            background: #fef3c7;
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reset-btn {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .reset-btn:hover {
+            background-color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1><i class="fa-solid fa-graduation-cap"></i> Quiz de Phonétique Française</h1>
+        <p>Structure du Français Moderne · Chapitre 4 : L'articulation des voyelles</p>
+    </header>
+
+    <!-- Selection de Partie -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchSection('part1')"><i class="fa-solid fa-brain"></i> Partie 1 : Concepts Clés (10 Q)</button>
+        <button class="tab-btn" onclick="switchSection('part2')"><i class="fa-solid fa-vial"></i> Partie 2 : Exemples Pratiques (10 Q)</button>
+    </div>
+
+    <!-- Tableau de Score -->
+    <div class="score-banner">
+        <div class="score-info">
+            <div>
+                <div style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Score Actuel</div>
+                <div class="score-number" id="score-display">0 / 10</div>
+            </div>
+        </div>
+        <div>
+            <div style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 4px;">Progression</div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+        </div>
+        <button class="reset-btn" onclick="resetQuiz()"><i class="fa-solid fa-rotate-right"></i> Réinitialiser</button>
+    </div>
+
+    <!-- CONTENEUR DES QUESTIONS PARTIE 1 -->
+    <div id="part1-container"></div>
+
+    <!-- CONTENEUR DES QUESTIONS PARTIE 2 -->
+    <div id="part2-container" style="display: none;"></div>
+</div>
+
+<script>
+// DATASET QUIZ PARTIE 1 : CONCEPTS CLÉS (10 QUESTIONS)
+const questionsPart1 = [
+    {
+        id: 1,
+        question: "1. Quelle est la différence fondamentale entre la phonétique et la phonologie ?",
+        options: [
+            "A. La phonétique étudie les voyelles, la phonologie étudie les consonnes.",
+            "B. La phonétique étudie les sons physiques (phones), tandis que la phonologie étudie les sons à valeur fonctionnelle distinctive (phonèmes).",
+            "C. La phonétique s'occupe de la langue écrite, la phonologie de la langue orale.",
+            "D. Il n'y a aucune différence, ce sont deux termes synonymes."
+        ],
+        answer: 1,
+        explanation: "Explication : La phonétique étudie la production et la perception des sons de la parole (phones) quel que soit leur rôle. La phonologie n'étudie que les unités sonores à valeur linguistique distinctive (phonèmes) qui permettent d'opposer des sens (ex: 'bon' vs 'long')."
+    },
+    {
+        id: 2,
+        question: "2. Combien d'unités sonores (phonèmes) le système du français moderne compte-t-il au total ?",
+        options: [
+            "A. Exactement 26 comme les lettres de l'alphabet.",
+            "B. Environ 50 unités.",
+            "C. Un total de 36 unités (voyelles et consonnes).",
+            "D. 12 unités uniquement."
+        ],
+        answer: 2,
+        explanation: "Explication : Selon le manuel (Section 1), le nombre d'unités sonores varie de 30 à 50 selon les langues, et s'élève à 36 pour le système du français moderne."
+    },
+    {
+        id: 3,
+        question: "3. Quelle branche de la phonétique étudie les propriétés physiques et la propagation des ondes sonores ?",
+        options: [
+            "A. La phonétique articulatoire",
+            "B. La phonétique acoustique",
+            "C. La phonétique auditive",
+            "D. La phonostylistique"
+        ],
+        answer: 1,
+        explanation: "Explication : La phonétique acoustique étudie la propagation et les propriétés physiques des sons. La phonétique articulatoire décrit l'appareil vocal, et la phonétique auditive traite du décodage perceptif."
+    },
+    {
+        id: 4,
+        question: "4. Quel organe est responsable de la production du son de base appelé la 'voix' (vocalisation) ?",
+        options: [
+            "A. Les alvéoles",
+            "B. Les cordes vocales situées dans le larynx",
+            "C. Le voile du palais",
+            "D. L'épiglotte"
+        ],
+        answer: 1,
+        explanation: "Explication : Le rapprochement des cordes vocales dans le larynx sous la pression de l'air pulmonaire expiré provoque leurs vibrations, générant ainsi la vocalisation ou la voix."
+    },
+    {
+        id: 5,
+        question: "5. Comment qualifie-t-on une voyelle articulée lorsque le voile du palais (velum) est abaissé ?",
+        options: [
+            "A. Une voyelle orale",
+            "B. Une voyelle fermée",
+            "C. Une voyelle nasale",
+            "D. Une voyelle postérieure"
+        ],
+        answer: 2,
+        explanation: "Explication : Lorsque le voile du palais est abaissé, l'air expiré passe simultanément par les cavités buccale et nasale, produisant une voyelle nasale ([ɛ̃], [œ̃], [ã], [ɔ̃])."
+    },
+    {
+        id: 6,
+        question: "6. Quel est le trait articulatoire caractérisé par une langue courbée projetée vers l'avant avec la pointe derrière les dents inférieures ?",
+        options: [
+            "A. Articulation postérieure",
+            "B. Articulation antérieure",
+            "C. Articulation arrondie",
+            "D. Articulation ouverte"
+        ],
+        answer: 1,
+        explanation: "Explication : Si la masse de la langue se projette vers l'avant et que la pointe se place derrière les dents inférieures, il s'agit d'une articulation antérieure (ex: [i], [y], [e])."
+    },
+    {
+        id: 7,
+        question: "7. Combien de degrés d'aperture sont généralement retenus pour classer les voyelles du français ?",
+        options: [
+            "A. 2 degrés (Ouvert / Fermé)",
+            "B. 3 degrés",
+            "C. 4 degrés (Très fermées, Fermées, Ouvertes, Très ouvertes)",
+            "D. 6 degrés"
+        ],
+        answer: 2,
+        explanation: "Explication : Le manuel définit 4 degrés d'aperture : 1) très fermées ([i],[y],[u]), 2) fermées ([e],[ø],[o]), 3) ouvertes ([ɛ],[œ],[ɔ]), et 4) très ouvertes ([a],[ɑ])."
+    },
+    {
+        id: 8,
+        question: "8. Quelle est l'origine et l'année de création de l'Alphabet Phonétique International (API) ?",
+        options: [
+            "A. Créé à l'Académie française en 1635.",
+            "B. Créé à Paris en 1886 par l'Association Phonétique Internationale pour l'enseignement des langues.",
+            "C. Inventé par Molière en 1670.",
+            "D. Fondé à Genève en 1916 par Saussure."
+        ],
+        answer: 1,
+        explanation: "Explication : L'API a été créé en 1886 à Paris par l'Association Phonétique Internationale afin de faciliter l'enseignement des langues vivantes."
+    },
+    {
+        id: 9,
+        question: "9. Sur le plan fonctionnel, quelle est la contribution respective des consonnes et des voyelles ?",
+        options: [
+            "A. Les voyelles servent à l'intelligibilité et les consonnes à l'audibilité.",
+            "B. Les consonnes servent à l'intelligibilité du discours et les voyelles à l'audibilité (porter la voix).",
+            "C. Les voyelles et consonnes ont exactement le même rôle.",
+            "D. Les voyelles transmettent toute l'information sémantique."
+        ],
+        answer: 1,
+        explanation: "Explication : Les consonnes fournissent l'armature d'intelligibilité (permettant de déchiffrer le sens), tandis que les voyelles servent à l'audibilité en portant la voix."
+    },
+    {
+        id: 10,
+        question: "10. Pourquoi dit-on que le français parlé fait preuve d'économie articulatoire ?",
+        options: [
+            "A. Parce qu'il ne comporte que 5 voyelles.",
+            "B. Parce qu'il supprime souvent des éléments comme le E caduc dans la conversation fluide (ex: 'Je n'sais pas').",
+            "C. Parce que personne ne prononce les consonnes.",
+            "D. Parce qu'il s'écrit sans voyelles."
+        ],
+        answer: 1,
+        explanation: "Explication : Pour des raisons d'économie de moyens, la langue orale simplifie la chaîne parlée en laissant tomber le E caduc ou en condensant des formes ('v'là' pour 'voilà')."
+    }
+];
+
+// DATASET QUIZ PARTIE 2 : EXEMPLES ET PRATIQUE (10 QUESTIONS)
+const questionsPart2 = [
+    {
+        id: 1,
+        question: "1. Quel est le symbole API correct pour la voyelle du mot 'loup' ?",
+        options: [
+            "A. [y]",
+            "B. [u]",
+            "C. [o]",
+            "D. [ɔ]"
+        ],
+        answer: 1,
+        explanation: "Explication : La voyelle du mot 'loup' est notée [u] (voyelle orale, postérieure, arrondie, très fermée). Ne pas confondre avec [y] qui correspond à 'lu'."
+    },
+    {
+        id: 2,
+        question: "2. Les mots 'brin', 'main' et 'vin' contiennent tous quelle voyelle nasale ?",
+        options: [
+            "A. [ã]",
+            "B. [ɔ̃]",
+            "C. [ɛ̃]",
+            "D. [œ̃]"
+        ],
+        answer: 2,
+        explanation: "Explication : Les graphies 'in', 'ain', 'ein' représentent la voyelle nasale [ɛ̃] (antérieure, écartée, ouverte)."
+    },
+    {
+        id: 3,
+        question: "3. Parmi les voyelles suivantes, laquelle combine une articulation ANTIÉRIEURE et ARRONDIE ?",
+        options: [
+            "A. [i]",
+            "B. [u]",
+            "C. [y]",
+            "D. [a]"
+        ],
+        answer: 2,
+        explanation: "Explication : La voyelle [y] (comme dans 'lu') est une caractéristique typique du français : elle est antérieure (langue vers l'avant) ET arrondie (lèvres projetées)."
+    },
+    {
+        id: 4,
+        question: "4. Quelle est la voyelle représentée par le symbole [ø] dans la transcription phonétique ?",
+        options: [
+            "A. La voyelle de 'peur'",
+            "B. La voyelle de 'peu'",
+            "C. La voyelle de 'pâte'",
+            "D. La voyelle de 'porte'"
+        ],
+        answer: 1,
+        explanation: "Explication : Le symbole [ø] représente la voyelle fermée antérieure arrondie comme dans 'peu' ou 'deux' (à ne pas confondre avec [œ] ouvert comme dans 'peur')."
+    },
+    {
+        id: 5,
+        question: "5. Dans quel mot la lettre 'C' se prononce-t-elle /s/ ?",
+        options: [
+            "A. coq",
+            "B. cire",
+            "C. zinc",
+            "D. orchestre"
+        ],
+        answer: 1,
+        explanation: "Explication : La lettre 'C' se prononce /s/ devant 'i' ou 'e' (ex: 'cire', 'ce'). Dans 'coq' elle vaut /k/, et dans 'zinc' elle vaut /g/."
+    },
+    {
+        id: 6,
+        question: "6. Pourquoi dit-on que le 'H' est 'aspiré' dans l'expression 'des héros' ?",
+        options: [
+            "A. Parce qu'on prononce un son rauque à l'initiale.",
+            "B. Parce qu'il empêche la liaison et l'élision (on prononce /de.e.ʁo/).",
+            "C. Parce qu'il oblige à faire une liaison obligatoire en /z/.",
+            "D. Parce qu'il s'agit d'une voyelle nasale."
+        ],
+        answer: 1,
+        explanation: "Explication : Le 'H aspiré' ne s'entend pas physiquement mais agit comme une frontière consonantique interdisant l'élision (*l'héros) et la liaison (/de.e.ʁo/ et non /de.zi.ʁo/)."
+    },
+    {
+        id: 7,
+        question: "7. Dans le vers de Molière, quelle voyelle est formée 'en allongeant les deux lèvres en dehors comme si vous faisiez la moue' ?",
+        options: [
+            "A. La voix A",
+            "B. La voix E",
+            "C. La voix O",
+            "D. La voix U (phonétiquement [y])"
+        ],
+        answer: 3,
+        explanation: "Explication : Dans Le Bourgeois Gentilhomme, le Maître de philosophie explique à M. Jourdain que pour la lettre U (qui correspond au son [y]), les lèvres s'allongent comme pour faire la moue."
+    },
+    {
+        id: 8,
+        question: "8. Quelle est la transcription API correcte de la phrase 'la philosophie' ?",
+        options: [
+            "A. [la.phi.lo.so.phie]",
+            "B. [lafilozofi]",
+            "C. [la.fylo.zo.fy]",
+            "D. [la.phi.lo.so.fy]"
+        ],
+        answer: 1,
+        explanation: "Explication : En API, la philosophie s'écrit [lafilozofi]. La lettre 'ph' est transcrite [f], et le 's' intervocalique est sonorisé en [z]."
+    },
+    {
+        id: 9,
+        question: "9. Quel groupe de voyelles appartient au degré d'aperture 'TRÈS FERMÉE' (hautes) ?",
+        options: [
+            "A. [e], [ø], [o]",
+            "B. [i], [y], [u]",
+            "C. [ɛ], [œ], [ɔ]",
+            "D. [a], [ɑ]"
+        ],
+        answer: 1,
+        explanation: "Explication : Les voyelles très fermées sont [i] (orale antérieure), [y] (antérieure arrondie) et [u] (postérieure arrondie)."
+    },
+    {
+        id: 10,
+        question: "10. Quel son consonantique est produit par la lettre 'X' dans le mot 'examen' ?",
+        options: [
+            "A. /ks/",
+            "B. /gz/",
+            "C. /s/",
+            "D. /z/"
+        ],
+        answer: 1,
+        explanation: "Explication : La lettre 'X' représente le groupe /gz/ dans 'examen' ou 'exil', alors qu'elle représente /ks/ dans 'taxi' ou 'boxer'."
+    }
+];
+
+let currentSection = 'part1';
+let scorePart1 = 0;
+let scorePart2 = 0;
+let answeredPart1 = new Set();
+let answeredPart2 = new Set();
+
+function initQuiz() {
+    renderQuiz('part1', questionsPart1, 'part1-container');
+    renderQuiz('part2', questionsPart2, 'part2-container');
+    updateScoreDisplay();
+}
+
+function renderQuiz(sectionKey, questions, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    questions.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = 'quiz-card';
+        card.id = `${sectionKey}-card-${idx}`;
+
+        let optionsHTML = '';
+        q.options.forEach((opt, oIdx) => {
+            optionsHTML += `
+                <button class="option-btn" id="${sectionKey}-q${idx}-opt${oIdx}" onclick="checkAnswer('${sectionKey}', ${idx}, ${oIdx})">
+                    <span>${opt}</span>
+                    <i class="fa-regular fa-circle"></i>
+                </button>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="quiz-header">
+                <span class="q-number">Question ${idx + 1} / 10</span>
+            </div>
+            <div class="q-text">${q.question}</div>
+            <div class="options-grid">
+                ${optionsHTML}
+            </div>
+            <div class="explanation-box" id="${sectionKey}-exp-${idx}">
+                ${q.explanation}
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+function checkAnswer(sectionKey, qIdx, selectedOptIdx) {
+    const answeredSet = sectionKey === 'part1' ? answeredPart1 : answeredPart2;
+    if (answeredSet.has(qIdx)) return; // Déjà répondu
+
+    answeredSet.add(qIdx);
+    const questions = sectionKey === 'part1' ? questionsPart1 : questionsPart2;
+    const q = questions[qIdx];
+
+    const selectedBtn = document.getElementById(`${sectionKey}-q${qIdx}-opt${selectedOptIdx}`);
+    const expBox = document.getElementById(`${sectionKey}-exp-${qIdx}`);
+
+    // Désactiver toutes les options
+    q.options.forEach((_, oIdx) => {
+        const btn = document.getElementById(`${sectionKey}-q${qIdx}-opt${oIdx}`);
+        btn.classList.add('disabled');
+    });
+
+    if (selectedOptIdx === q.answer) {
+        selectedBtn.classList.add('selected-correct');
+        selectedBtn.querySelector('i').className = 'fa-solid fa-circle-check';
+        if (sectionKey === 'part1') scorePart1++; else scorePart2++;
+    } else {
+        selectedBtn.classList.add('selected-incorrect');
+        selectedBtn.querySelector('i').className = 'fa-solid fa-circle-xmark';
+        
+        // Mettre en valeur la bonne réponse
+        const correctBtn = document.getElementById(`${sectionKey}-q${qIdx}-opt${q.answer}`);
+        correctBtn.classList.add('selected-correct');
+        correctBtn.querySelector('i').className = 'fa-solid fa-circle-check';
+    }
+
+    expBox.classList.add('show');
+    updateScoreDisplay();
+}
+
+function switchSection(sectionKey) {
+    currentSection = sectionKey;
+    const btns = document.querySelectorAll('.tab-btn');
+    btns[0].classList.toggle('active', sectionKey === 'part1');
+    btns[1].classList.toggle('active', sectionKey === 'part2');
+
+    document.getElementById('part1-container').style.display = sectionKey === 'part1' ? 'block' : 'none';
+    document.getElementById('part2-container').style.display = sectionKey === 'part2' ? 'block' : 'none';
+
+    updateScoreDisplay();
+}
+
+function updateScoreDisplay() {
+    const currentScore = currentSection === 'part1' ? scorePart1 : scorePart2;
+    const currentAnswered = currentSection === 'part1' ? answeredPart1.size : answeredPart2.size;
+
+    document.getElementById('score-display').innerText = `${currentScore} / 10`;
+    const pct = (currentAnswered / 10) * 100;
+    document.getElementById('progress-bar').style.width = `${pct}%`;
+}
+
+function resetQuiz() {
+    scorePart1 = 0;
+    scorePart2 = 0;
+    answeredPart1.clear();
+    answeredPart2.clear();
+    initQuiz();
+}
+
+// Initialisation au chargement
+window.onload = initQuiz;
+</script>
+
+</body>
+</html>
+```eof
+
+Chers étudiants et collègues,
+
+Vos supports de cours magistral et d'évaluation interactive pour le **Chapitre 4 : L'articulation des voyelles françaises** (issu du manuel *Structure du français moderne*) ont été intégralement rédigés et générés en deux fichiers distincts :
+
+1. **`linguistique_francaise_ch4_slides.html`** :
+   - Un diaporama de présentation académique (12 slides au format HTML) respectant rigoureusement la totalité des paragraphes et sections du chapitre.
+   - Intégration complète des trois figures anatomiques et phonétiques (Figure 4.1 : Appareil phonatoire, Figure 4.2 : Cinéradiographies vocaliques, Figure 4.3 : Trapèze des voyelles).
+   - Présentation élégante et claire des traits articulatoires, des transcriptions API, des règles d'orthoépie et de l'extrait de Molière (*Le Bourgeois Gentilhomme*).
+
+2. **`quiz_phonetique_francaise.html`** :
+   - Une application web interactive regroupant **20 questions à choix multiples** (10 questions sur les concepts théoriques clés et 10 questions d'explication d'exemples pratiques et transcriptions).
+   - Validation instantanée des réponses, calcul automatique du score, barre de progression dynamique et explications détaillées pour chaque question.
+
+N'hésitez pas à télécharger et ouvrir ces deux fichiers directement dans votre navigateur pour vos séances de cours et de travaux dirigés !
