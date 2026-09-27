@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interactif : Phonologie des Consonnes Françaises</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        h1, h2, h3 {
+            font-family: 'Merriweather', serif;
+        }
+        .tab-active {
+            border-bottom: 3px solid #3b82f6;
+            color: #60a5fa;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4 sm:px-8">
+    <div class="max-w-4xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+        
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-8 text-center border-b border-slate-800">
+            <span class="text-blue-400 font-bold uppercase tracking-wider text-xs bg-blue-950/80 px-3 py-1 rounded-full border border-blue-800">Linguistique Française — Chapitre 7</span>
+            <h1 class="text-3xl sm:text-4xl font-bold mt-3 text-white">Quiz Interactif de Phonologie</h1>
+            <p class="text-slate-300 mt-2 text-sm sm:text-base max-w-2xl mx-auto"> Testez vos connaissances théoriques et pratiques sur la phonologie des consonnes françaises (20 questions avec réponses et explications détaillées).</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-slate-800 bg-slate-950/50">
+            <button id="tab-btn-concepts" onclick="switchTab('concepts')" class="flex-1 py-4 text-center font-medium text-slate-400 hover:text-slate-200 transition-all tab-active flex items-center justify-center gap-2">
+                <i class="fa-solid fa-brain text-blue-500"></i> Part 1 : Concepts Clés (10 Qs)
+            </button>
+            <button id="tab-btn-examples" onclick="switchTab('examples')" class="flex-1 py-4 text-center font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-vial text-indigo-500"></i> Part 2 : Exemples Pratiques (10 Qs)
+            </button>
+        </div>
+
+        <!-- Score Dashboard -->
+        <div class="p-4 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center text-sm px-8">
+            <div class="text-slate-400">Progression : <span id="progress-text" class="text-white font-bold">0 / 10</span></div>
+            <div class="text-slate-400">Score actuel : <span id="score-text" class="text-green-400 font-bold">0 / 10</span></div>
+            <button onclick="resetCurrentTab()" class="text-slate-400 hover:text-red-400 transition-colors flex items-center gap-1 text-xs">
+                <i class="fa-solid fa-rotate-right"></i> Réinitialiser
+            </button>
+        </div>
+
+        <!-- Quiz Container -->
+        <div class="p-6 sm:p-8">
+            <!-- Part 1: Concepts -->
+            <div id="section-concepts" class="space-y-8">
+                <!-- Question cards injected via JS -->
+            </div>
+
+            <!-- Part 2: Examples -->
+            <div id="section-examples" class="space-y-8 hidden">
+                <!-- Question cards injected via JS -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-slate-950 p-6 text-center text-xs text-slate-500 border-t border-slate-800">
+            Support de Cours & Exercices Auto-Correctifs — Chapitre 7 : La Phonologie des Consonnes Françaises
+        </footer>
+    </div>
+
+    <script>
+        const conceptsQuizData = [
+            {
+                id: "c1",
+                question: "1. En phonologie consonantique, qu'appelle-t-on un « ordre » ?",
+                options: [
+                    "A. L'ensemble des consonnes qui partagent le même mode d'articulation.",
+                    "B. L'ensemble des consonnes qui partagent le même lieu d'articulation.",
+                    "C. La succession des phonèmes dans une syllabe.",
+                    "D. La hiérarchie de sonorité des voyelles et des consonnes."
+                ],
+                correct: 1,
+                explanation: "Un 'ordre' regroupe les consonnes ayant le MÊME LIEU d'articulation (ex: l'ordre bilabial /p, b, m/), tandis qu'une 'série' regroupe les consonnes ayant le même mode d'articulation."
+            },
+            {
+                id: "c2",
+                question: "2. Quelle est la principale différence de stabilité entre le système vocalique et le système consonantique français ?",
+                options: [
+                    "A. Le système consonantique tolère de fréquentes substitutions (ex: pont/bon).",
+                    "B. Le système vocalique est parfaitement fixe chez tous les francophones.",
+                    "C. Les francophones ne substituent jamais une consonne par une autre, contrairement aux voyelles (ex: brin/brun).",
+                    "D. Les consonnes varient librement sans contrainte d'opposition phonologique."
+                ],
+                correct: 2,
+                explanation: "L'accord des francophones est beaucoup plus grand pour les consonnes. Jamais un francophone ne remplacera /p/ par /b/ (pont/bon), alors que la confusion entre voyelles (ex: /e/ et /ɛ/) est fréquente."
+            },
+            {
+                id: "c3",
+                question: "3. Quelles sont les deux corrélations fondamentales qui régissent les occlusives françaises ?",
+                options: [
+                    "A. La corrélation de voisement et la corrélation de nasalité.",
+                    "B. La corrélation d'apicalité et la corrélation de tension.",
+                    "C. La corrélation de sonorité et la corrélation de palatalisation.",
+                    "D. La corrélation de continuité et la corrélation d'aspiration."
+                ],
+                correct: 0,
+                explanation: "Les occlusives s'organisent selon la corrélation de voisement (voisé/non voisé : /p,t,k/ vs /b,d,g/) et la corrélation de nasalité (oral/nasal : /p,t,k,b,d,g/ vs /m,n,ɲ,ŋ/)."
+            },
+            {
+                id: "c4",
+                question: "4. Pourquoi le phonème /ɲ/ est-il qualifié de phonème « hors corrélation » ?",
+                options: [
+                    "A. Parce qu'il est d'origine étrangère.",
+                    "B. Parce qu'il n'a pas de correspondant oral et voisé direct et possède une faible occurrence.",
+                    "C. Parce qu'il s'agit d'une fricative nasale.",
+                    "D. Parce qu'il ne se trouve jamais au début d'un mot."
+                ],
+                correct: 1,
+                explanation: "Le /ɲ/ laisse une 'case vide' dans le système car il n'a pas de correspondant oral voisé direct. Sa faible fréquence entraîne des fluctuations (souvent réalisé [n]+[j])."
+            },
+            {
+                id: "c5",
+                question: "5. Comment est défini le statut phonologique du son /ŋ/ dans le mot « parking » ?",
+                options: [
+                    "A. Un phonème patrimonial très stable.",
+                    "B. Une variante combinatoire du /n/.",
+                    "C. Un morpho-phonème emprunté à l'anglais, mal intégré et souvent réalisé [in].",
+                    "D. Une voyelle nasalisée."
+                ],
+                correct: 2,
+                explanation: "Le /ŋ/ apparaît uniquement dans le morphème emprunté -ing. Il s'agit d'un morpho-phonème mal intégré, fréquemment réalisé [in] (ex: parking prononcé [paʁkin])."
+            },
+            {
+                id: "c6",
+                question: "6. Concernant la corrélation de nasalité chez les fricatives (/f, v, s, z, ʃ, ʒ, R/) :",
+                options: [
+                    "A. Elle est très développée comme chez les occlusives.",
+                    "B. Elle est totalement absente du système phonologique.",
+                    "C. Elle ne concerne que le /s/ et le /z/.",
+                    "D. Elle crée des paires minimales très fréquentes."
+                ],
+                correct: 1,
+                explanation: "La corrélation de nasalité est totalement absente des fricatives. Il n'existe pas de fricative nasale opposée à une fricative orale en français."
+            },
+            {
+                id: "c7",
+                question: "7. Qu'entend-on par « rendement phonologique » d'une opposition ?",
+                options: [
+                    "A. La vitesse d'articulation des consonnes.",
+                    "B. La force musculaire déployée par la langue.",
+                    "C. La productivité d'une opposition pour distinguer un grand nombre de termes lexicaux.",
+                    "D. Le nombre de lettres nécessaires pour écrire un phonème."
+                ],
+                correct: 2,
+                explanation: "Le rendement phonologique mesure l'utilité lexicale d'une opposition. L'opposition de voisement (/p/ vs /b/) a un haut rendement car elle distingue de très nombreux mots (pas/bas, ton/don, etc.)."
+            },
+            {
+                id: "c8",
+                question: "8. Quelle est la caractéristique essentielle d'une « variante conditionnée » ?",
+                options: [
+                    "A. Elle est choisie consciemment par le locuteur selon son origine sociale.",
+                    "B. Elle est causée automatiquement par le contexte sonore et n'est généralement pas perçue.",
+                    "C. Elle modifie le sens des mots.",
+                    "D. Elle n'apparaît que dans le langage écrit."
+                ],
+                correct: 1,
+                explanation: "Les variantes conditionnées (ou combinatoires) sont des ajustements automatiques non perçus provoqués par le contact entre sons dans la chaîne parlée (assimilation)."
+            },
+            {
+                id: "c9",
+                question: "9. Dans le mécanisme d'assimilation, quel facteur est le plus déterminant pour rendre un phone « fort » ?",
+                options: [
+                    "A. Le lieu d'articulation bilabial.",
+                    "B. La position en début de syllabe (attaque).",
+                    "C. La longueur de la voyelle précédente.",
+                    "D. L'accent de phrase."
+                ],
+                correct: 1,
+                explanation: "Bien que la nature des consonnes joue un rôle (occlusives > fricatives), la POSITION dans la syllabe (début de syllabe) est le facteur le plus puissant pour déclencher l'assimilation."
+            },
+            {
+                id: "c10",
+                question: "10. Quelle différence oppose l'assimilation progressive de l'assimilation régressive ?",
+                options: [
+                    "A. Progressive = la 1ère consonne influence la 2nde ; Régressive = la 2nde influence la 1ère.",
+                    "B. Progressive = voisement ; Régressive = dévoisement.",
+                    "C. Progressive = concerne les voyelles ; Régressive = concerne les consonnes.",
+                    "D. Progressive = langage soutenu ; Régressive = langage populaire."
+                ],
+                correct: 0,
+                explanation: "Dans l'assimilation progressive, le premier son transmet son trait au second (A -> B). Dans l'assimilation régressive, le second son influence le premier (A <- B)."
+            }
+        ];
+
+        const examplesQuizData = [
+            {
+                id: "e1",
+                question: "1. Dans le mot « absent », la réalisation [apsɑ̃] illustre quel phénomène ?",
+                options: [
+                    "A. Une assimilation progressive de voisement.",
+                    "B. Une assimilation régressive de dévoisement.",
+                    "C. Une palatalisation du /b/.",
+                    "D. Une variante libre sociologique."
+                ],
+                correct: 1,
+                explanation: "Le [s] (non voisé, en début de 2e syllabe = fort) assimile le [b] (voisé, en fin de 1re syllabe = faible) qui perd son voisement et se prononce presque [p]."
+            },
+            {
+                id: "e2",
+                question: "2. La prononciation du mot « anecdote » sous la forme [anɛɡdɔt] est due à :",
+                options: [
+                    "A. Une assimilation régressive de voisement.",
+                    "B. Une assimilation progressive de dévoisement.",
+                    "C. Une dénasalisation de la voyelle initiale.",
+                    "D. Un emprunt à l'allemand."
+                ],
+                correct: 0,
+                explanation: "Le [d] (occlusive voisée en attaque de syllabe) assimile le [k] (en coda faible) et lui transmet le trait de voisement, le transformant phonétiquement en [ɡ]."
+            },
+            {
+                id: "e3",
+                question: "3. Dans le mot « près », la transcription [pʁ̥ɛ] montre un [ʁ] dévoisé. Il s'agit d'une :",
+                options: [
+                    "A. Assimilation régressive.",
+                    "B. Assimilation progressive de dévoisement.",
+                    "C. Palatalisation contextuelle.",
+                    "D. Variante libre rurale."
+                ],
+                correct: 1,
+                explanation: "L'occlusive sourde initiale [p] (forte) impose son absence de voisement à la fricative suivante [ʁ] (faible). C'est une assimilation progressive."
+            },
+            {
+                id: "e4",
+                question: "4. La prononciation populaire de « m(on)sieur » sous la forme [psjø] montre :",
+                options: [
+                    "A. Une nasalisation de la consonne orale.",
+                    "B. Une dénasalisation de la consonne nasale.",
+                    "C. Une assimilation de lieu d'articulation.",
+                    "D. Un changement de phonème distinctif."
+                ],
+                correct: 1,
+                explanation: "Dans [psjø], la consonne nasale initiale /m/ a perdu son trait de nasalité (dénasalisation) sous l'influence du contexte phonétique rapide."
+            },
+            {
+                id: "e5",
+                question: "5. La réalisation populaire du mot « maintenant » sous la forme [mɛ̃nnɑ̃] est un exemple de :",
+                options: [
+                    "A. Nasalisation d'une consonne orale.",
+                    "B. Dévoisement d'une occlusive.",
+                    "C. Palatalisation du /t/.",
+                    "D. Simplification de groupe consonantique."
+                ],
+                correct: 0,
+                explanation: "Le [t] oral intervocalique ou en contact avec des nasales s'assimile et devient une consonne nasale [n], illustrant la nasalisation d'une consonne orale."
+            },
+            {
+                id: "e6",
+                question: "6. La tendance de certains locuteurs à prononcer « agneau » [anjo] au lieu de [aɲo] s'explique par :",
+                options: [
+                    "A. Une assimilation régressive de lieu.",
+                    "B. L'instabilité du phonème /ɲ/ résolue par la séquence /n/ + /j/.",
+                    "C. L'influence du dialecte alsacien.",
+                    "D. Un emprunt à l'anglais."
+                ],
+                correct: 1,
+                explanation: "En raison de sa faible fréquence et de son statut hors corrélation, le phonème /ɲ/ est souvent décomposé en deux phonèmes plus solides du système : /n/ + /j/."
+            },
+            {
+                id: "e7",
+                question: "7. La forme « joual » [ʒval] pour « cheval » (au lieu du standard [ʃfal]) représente :",
+                options: [
+                    "A. Une assimilation exceptionnelle de voisement dans l'autre sens.",
+                    "B. Une métathèse consonantique.",
+                    "C. Une apocope de la voyelle centrale.",
+                    "D. Un anglicisme phonétique."
+                ],
+                correct: 0,
+                explanation: "Le standard réalise [ʃfal] (dévoisement régressif du /v/ par [ʃ]). Au Canada et dans l'Ouest, l'assimilation s'est faite exceptionnellement dans l'autre sens : le /v/ a sonorisé le [ʃ] en [ʒ] -> [ʒval]."
+            },
+            {
+                id: "e8",
+                question: "8. En Alsace, la prononciation du mot « bonjour » en [bõʃur] découle de :",
+                options: [
+                    "A. L'absence de fricatives dans le système.",
+                    "B. Un dévoisement systématique des consonnes voisées dû au substrat germanique.",
+                    "C. Une hypercorrection stylistique.",
+                    "D. Une palatalisation du /ʒ/."
+                ],
+                correct: 1,
+                explanation: "Sous l'influence du dialecte germanique régional, les consonnes voisées subissent un dévoisement en position intervocalique et finale ([bõʃur] au lieu de [bõʒuʁ], [vilaʃ] pour [vilaʒ])."
+            },
+            {
+                id: "e9",
+                question: "9. Le passage historique du [r] roulé apico-alvéolaire au [R] dorso-uvulaire est :",
+                options: [
+                    "A. Une assimilation combinatoire obligatoire.",
+                    "B. Une variante libre devenue une marque sociologique urbaine et prestigieuse.",
+                    "C. Une modification de la corrélation de voisement.",
+                    "D. Une création de paire minimale."
+                ],
+                correct: 1,
+                explanation: "Le /R/ roulé [r] est perçu comme rural/archaïque. La variante dorso-uvulaire [R] s'est imposée comme norme urbaine et prestigieuse en France puis dans l'espace francophone."
+            },
+            {
+                id: "e10",
+                question: "10. La prononciation du mot « qui » avec une légère coloration [kʲi] est un exemple de :",
+                options: [
+                    "A. Palatalisation (assimilation de lieu d'articulation provoquée par la voyelle antérieure [i]).",
+                    "B. Nasalisation combinatoire.",
+                    "C. Dévoisement régressif.",
+                    "D. Variante libre archaïque."
+                ],
+                correct: 0,
+                explanation: "Suivi d'une voyelle antérieure très fermée comme [i], le lieu d'articulation du [k] est avancé vers le palais dur (palatalisation contextuelle)."
+            }
+        ];
+
+        let currentTab = 'concepts';
+        let scores = { concepts: {}, examples: {} };
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('section-concepts').classList.toggle('hidden', tab !== 'concepts');
+            document.getElementById('section-examples').classList.toggle('hidden', tab !== 'examples');
+            
+            document.getElementById('tab-btn-concepts').classList.toggle('tab-active', tab === 'concepts');
+            document.getElementById('tab-btn-examples').classList.toggle('tab-active', tab === 'examples');
+
+            updateDashboard();
+        }
+
+        function renderQuiz(data, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            data.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-950/60 border border-slate-800 rounded-xl p-6 transition-all hover:border-slate-700";
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, idx) => {
+                    optionsHTML += `
+                        <button onclick="selectAnswer('${q.id}', ${idx}, ${q.correct})" 
+                                id="btn-${q.id}-${idx}"
+                                class="w-full text-left p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800/80 hover:border-slate-700 transition-all text-sm sm:text-base text-slate-300 flex items-start gap-3">
+                            <span class="inline-block w-5 h-5 rounded-full border border-slate-600 flex-shrink-0 mt-0.5 text-center text-xs font-bold leading-5"></span>
+                            <span>${opt}</span>
+                        </button>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <h3 class="text-lg font-bold text-white mb-4">${q.question}</h3>
+                    <div class="space-y-3">${optionsHTML}</div>
+                    <div id="explanation-${q.id}" class="hidden mt-4 p-4 rounded-lg text-sm bg-slate-900/90 border border-slate-800 text-slate-300">
+                        <div class="font-bold mb-1 flex items-center gap-2" id="expl-title-${q.id}"></div>
+                        <p>${q.explanation}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectAnswer(qId, selectedIdx, correctIdx) {
+            const dataSet = currentTab === 'concepts' ? conceptsQuizData : examplesQuizData;
+            const q = dataSet.find(item => item.id === qId);
+            
+            // Prevent re-answering
+            if (scores[currentTab][qId] !== undefined) return;
+
+            const isCorrect = selectedIdx === correctIdx;
+            scores[currentTab][qId] = isCorrect;
+
+            // Style buttons
+            q.options.forEach((_, idx) => {
+                const btn = document.getElementById(`btn-${qId}-${idx}`);
+                btn.disabled = true;
+                if (idx === correctIdx) {
+                    btn.classList.remove('bg-slate-900', 'border-slate-800');
+                    btn.classList.add('bg-green-950/60', 'border-green-600', 'text-green-200');
+                } else if (idx === selectedIdx && !isCorrect) {
+                    btn.classList.remove('bg-slate-900', 'border-slate-800');
+                    btn.classList.add('bg-red-950/60', 'border-red-600', 'text-red-200');
+                }
+            });
+
+            // Show explanation
+            const explBox = document.getElementById(`explanation-${qId}`);
+            const explTitle = document.getElementById(`expl-title-${qId}`);
+            explBox.classList.remove('hidden');
+            
+            if (isCorrect) {
+                explTitle.innerHTML = `<i class="fa-solid fa-circle-check text-green-400"></i> <span class="text-green-400">Correct !</span>`;
+                explBox.classList.add('border-green-800/50');
+            } else {
+                explTitle.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-400"></i> <span class="text-red-400">Incorrect</span>`;
+                explBox.classList.add('border-red-800/50');
+            }
+
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            const tabScores = scores[currentTab];
+            const answeredCount = Object.keys(tabScores).length;
+            const correctCount = Object.values(tabScores).filter(v => v === true).length;
+
+            document.getElementById('progress-text').innerText = `${answeredCount} / 10`;
+            document.getElementById('score-text').innerText = `${correctCount} / 10`;
+        }
+
+        function resetCurrentTab() {
+            scores[currentTab] = {};
+            if (currentTab === 'concepts') {
+                renderQuiz(conceptsQuizData, 'section-concepts');
+            } else {
+                renderQuiz(examplesQuizData, 'section-examples');
+            }
+            updateDashboard();
+        }
+
+        // Initialize Quizzes
+        renderQuiz(conceptsQuizData, 'section-concepts');
+        renderQuiz(examplesQuizData, 'section-examples');
+        updateDashboard();
+    </script>
+</body>
+</html>

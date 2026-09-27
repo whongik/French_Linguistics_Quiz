@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interactif : L'Accentuation en Français Moderne</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --accent: #2563eb;
+            --bg-body: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --error: #dc2626;
+            --error-bg: #fef2f2;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            color: #ffffff;
+            padding: 40px 30px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #cbd5e1;
+            font-size: 16px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background-color: #ffffff;
+            border: 2px solid var(--border);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+        }
+
+        .progress-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .progress-bar-bg {
+            width: 60%;
+            height: 12px;
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb, #06b6d4);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        .phonetic {
+            font-family: 'Fira Code', monospace;
+            background-color: #f1f5f9;
+            color: #0f766e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 16px;
+            color: var(--text-main);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #eff6ff;
+            border-color: #93c5fd;
+        }
+
+        .option-btn.selected-correct {
+            background-color: var(--success-bg) !important;
+            border-color: var(--success) !important;
+            color: #14532d !important;
+            font-weight: 700;
+        }
+
+        .option-btn.selected-incorrect {
+            background-color: var(--error-bg) !important;
+            border-color: var(--error) !important;
+            color: #7f1d1d !important;
+            font-weight: 700;
+        }
+
+        .explanation-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8fafc;
+            border-left: 4px solid var(--accent);
+            display: none;
+        }
+
+        .explanation-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .explanation-box h4 {
+            font-size: 16px;
+            color: var(--primary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .btn-nav {
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-nav:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-nav:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .result-screen {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            font-size: 36px;
+            font-weight: 800;
+        }
+
+        .score-circle span {
+            font-size: 14px;
+            font-weight: 500;
+            color: #93c5fd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1><i class="fa-solid fa-graduation-cap"></i> Test de Connaissances & Application</h1>
+        <p>Chapitre 8 : L'Accentuation en Français Moderne • 20 Questions Interactives</p>
+    </header>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchSection('concept')">
+            <i class="fa-solid fa-brain"></i> 1. Notions Théoriques (Q1-10)
+        </button>
+        <button class="tab-btn" onclick="switchSection('app')">
+            <i class="fa-solid fa-microscope"></i> 2. Exercices d'Application (Q11-20)
+        </button>
+    </div>
+
+    <div class="progress-card">
+        <div>
+            <span style="font-weight: 700; color: var(--primary);" id="progress-text">Question 1 / 10</span>
+            <span style="font-size: 13px; color: var(--text-muted); display: block;" id="section-title">Section Conceptuelle</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- QUESTIONS CONTAINER -->
+    <div id="quiz-container"></div>
+
+    <!-- RESULT SCREEN -->
+    <div class="result-screen" id="result-screen">
+        <h2><i class="fa-solid fa-trophy" style="color: #eab308;"></i> Quiz Terminé !</h2>
+        <p style="color: var(--text-muted); margin-top: 8px;">Voici votre bilan de performance pour ce chapitre :</p>
+        
+        <div class="score-circle" id="final-score">
+            0/10
+            <span>Score Final</span>
+        </div>
+
+        <p id="feedback-message" style="font-size: 18px; font-weight: 600; margin: 20px 0;"></p>
+
+        <button class="btn-nav" style="margin: 0 auto;" onclick="restartQuiz()">
+            <i class="fa-solid fa-rotate-right"></i> Recommencer le Quiz
+        </button>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    // --- SECTION 1 : NOTIONS THEORIQUES (Q1 à Q10) ---
+    {
+        id: 1,
+        section: "concept",
+        number: "Question 1 / 10 (Notions Théoriques)",
+        question: "Quelle est la définition linguistique exacte de l'accentuation ?",
+        options: [
+            "A) Une déviance de prononciation par rapport à la norme régionale.",
+            "B) Une proéminence attribuée à une syllabe la mettant en relief par contraste relatif.",
+            "C) Une augmentation systématique du pitch sur le premier mot de chaque phrase.",
+            "D) Une modification de l'orthographe pour indiquer la prononciation."
+        ],
+        correct: 1,
+        explanation: "Selon le texte (Section 1), l'accentuation est une proéminence attribuée à une syllabe qui la met en relief par rapport aux autres syllabes du groupe au moyen d'un contraste relatif."
+    },
+    {
+        id: 2,
+        section: "concept",
+        number: "Question 2 / 10 (Notions Théoriques)",
+        question: "Sur le plan physiologique, à quoi correspond l'accentuation ?",
+        options: [
+            "A) À une baisse de la pression sous-glottique.",
+            "B) À un relâchement complet des cordes vocales.",
+            "C) À une augmentation de la tension de l'appareil articulatoire et un effort musculaire accru.",
+            "D) À une fermeture nasale forcée."
+        ],
+        correct: 2,
+        explanation: "Physiologiquement (Section 2), l'accentuation découle d'un effort musculaire supérieur entraînant une plus grande tension articulatoire."
+    },
+    {
+        id: 3,
+        section: "concept",
+        number: "Question 3 / 10 (Notions Théoriques)",
+        question: "Quels sont les trois indices acoustiques de l'accentuation ?",
+        options: [
+            "A) La durée (cs), l'intensité (dB) et la variation mélodique (Hz).",
+            "B) Le timbre, la nasalité et la hauteur.",
+            "C) L'aperture, la vocalité et la sonorité.",
+            "D) Le débit, les pauses et les consonnes."
+        ],
+        correct: 0,
+        explanation: "Sur le plan acoustique (Section 2), les trois indices cardinaux sont la durée (centisecondes), l'intensité (décibels) et la fréquence/mélodie (hertz)."
+    },
+    {
+        id: 4,
+        section: "concept",
+        number: "Question 4 / 10 (Notions Théoriques)",
+        question: "En français, quel est l'indice acoustique constant et prédominant de l'accentuation démarcative ?",
+        options: [
+            "A) Une augmentation systématique de l'intensité sonore.",
+            "B) Une prolongation de la durée de la syllabe (de l'ordre du double).",
+            "C) Un saut d'octave systématique.",
+            "D) Un assourdissement de la voyelle."
+        ],
+        correct: 1,
+        explanation: "En français, la syllabe accentuée est caractérisée de façon constante par un allongement temporel remarquable, durant environ deux fois plus longtemps que les syllabes inaccentuées."
+    },
+    {
+        id: 5,
+        section: "concept",
+        number: "Question 5 / 10 (Notions Théoriques)",
+        question: "Où se place toujours l'accentuation démarcative en français ?",
+        options: [
+            "A) Sur la première syllabe du mot lexical.",
+            "B) Sur la syllabe contenant la voyelle la plus ouverte.",
+            "C) Sur la syllabe finale du groupe de sens (groupe rythmique).",
+            "D) Sur le verbe principal de la proposition."
+        ],
+        correct: 2,
+        explanation: "L'accentuation démarcative française est fixe par rapport au groupe de sens : elle frappe la toute dernière syllabe prononcée de ce groupe."
+    },
+    {
+        id: 6,
+        section: "concept",
+        number: "Question 6 / 10 (Notions Théoriques)",
+        question: "Qu'appelle-t-on un « groupe de souffle » ?",
+        options: [
+            "A) Un groupe de mots prononcés sans bouger la langue.",
+            "B) Un groupe de sens suivi d'une pause silencieuse correspondant à une respiration.",
+            "C) Une phrase contenant uniquement des voyelles aspirées.",
+            "D) Une exclamation de surprise."
+        ],
+        correct: 1,
+        explanation: "Si le groupe de sens se termine par une pause physiologique silencieuse permettant d'inspirer, on l'appelle groupe de souffle (Section 3)."
+    },
+    {
+        id: 7,
+        section: "concept",
+        number: "Question 7 / 10 (Notions Théoriques)",
+        question: "Qu'est-ce qu'une « joncture démarcative » (ou pause virtuelle #) ?",
+        options: [
+            "A) Un trait d'union obligatoire à l'écrit.",
+            "B) Une coupure nette ou pause potentielle permettant de lever l'ambiguïté entre deux découpages.",
+            "C) Un accent grave sur une voyelle finale.",
+            "D) L'absence totale de liaison."
+        ],
+        correct: 1,
+        explanation: "La joncture démarcative (notée #) est une frontière syllabique ou pause virtuelle qui re-découpe le groupe pour éviter la confusion entre homophones."
+    },
+    {
+        id: 8,
+        section: "concept",
+        number: "Question 8 / 10 (Notions Théoriques)",
+        question: "Quelle est la fonction principale de l'accent d'insistance ?",
+        options: [
+            "A) Marquer la fin de la phrase simple.",
+            "B) Distinguer un verbe d'un nom.",
+            "C) Une fonction expressive permettant de mettre en relief un mot ou une émotion.",
+            "D) Indiquer le nombre de syllabes grammaticales."
+        ],
+        correct: 2,
+        explanation: "L'accent d'insistance (Section 5) n'est pas démarcatif mais expressif / affectif : il met en valeur un terme pour l'attention de l'auditeur."
+    },
+    {
+        id: 9,
+        section: "concept",
+        number: "Question 9 / 10 (Notions Théoriques)",
+        question: "Généralement, quelle syllabe frappe l'accent d'insistance en français ?",
+        options: [
+            "A) La dernière syllabe du mot.",
+            "B) La première syllabe du mot (ou la première consonne).",
+            "C) La syllabe médiane exclusivement.",
+            "D) Toujours la voyelle nasale."
+        ],
+        correct: 1,
+        explanation: "L'accent d'insistance frappe très généralement la première syllabe du mot concerné (ex: C'est FORmidable !)."
+    },
+    {
+        id: 10,
+        section: "concept",
+        number: "Question 10 / 10 (Notions Théoriques)",
+        question: "Quelle est la différence fondamentale de fonction de l'accent entre le français et l'anglais/espagnol ?",
+        options: [
+            "A) Le français n'a aucun accent alors que l'anglais en a plusieurs.",
+            "B) En français l'accent a un rôle démarcatif au niveau du groupe, alors qu'en anglais/espagnol il a une fonction distinctive au niveau du mot.",
+            "C) En anglais l'accent est toujours final, en français il est initial.",
+            "D) L'espagnol n'utilise que l'intensité."
+        ],
+        correct: 1,
+        explanation: "En français, l'accent est lié au groupe syntaxique. En anglais/espagnol, sa position sur le mot permet de faire des distinctions lexicales ou grammaticales (ex: PERmit vs perMIT, CANto vs canTÓ)."
+    },
+
+    // --- SECTION 2 : EXERCICES D'APPLICATION (Q11 à Q20) ---
+    {
+        id: 11,
+        section: "app",
+        number: "Question 1 / 10 (Application)",
+        question: "Dans le groupe « la jolie petite table rouge », sur quelle syllabe tombe l'accent démarcatif ?",
+        options: [
+            "A) Sur « jo- » (jolie)",
+            "B) Sur « ta- » (table)",
+            "C) Sur « rouge » (rouge)",
+            "D) Sur « pe- » (petite)"
+        ],
+        correct: 2,
+        explanation: "En français, l'accent se déplace vers la fin à mesure que le groupe s'allonge. Dans toute cette chaîne, seule la dernière syllabe prononcée [ʁuʒ] reçoit l'accent démarcatif."
+    },
+    {
+        id: 12,
+        section: "app",
+        number: "Question 2 / 10 (Application)",
+        question: "Soit l'énoncé déclaratif simple : « J'ai décidé de partir. » Quelle est la direction de la courbe mélodique sur « partir » ?",
+        options: [
+            "A) Fortement ascendante pour poser une question.",
+            "B) Descendante pour indiquer la finalité de l'énoncé.",
+            "C) Complètement plate.",
+            "D) Ondulée en trois pics."
+        ],
+        correct: 1,
+        explanation: "Comme illustré dans le schéma intonatif du cours (p. 83), la mélodie descend en finale d'énoncé déclaratif pour marquer la conclusion du discours."
+    },
+    {
+        id: 13,
+        section: "app",
+        number: "Question 3 / 10 (Application)",
+        question: "Comment transcrit-on l'accent démarcatif dans le système diacritique phonétique présenté dans le chapitre ?",
+        options: [
+            "A) Par un tilde ~ sur la voyelle.",
+            "B) Par le symbole [ ' ] placé au-dessus ou devant la syllabe accentuée.",
+            "C) Par une majuscule.",
+            "D) Par un astérisque *."
+        ],
+        correct: 1,
+        explanation: "Le symbole diacritique utilisé dans la transcription du texte est [ ' ] sur la syllabe accentuée (ex: [ʒədwapaʁtiʁvɛʁsi'zœʁ])."
+    },
+    {
+        id: 14,
+        section: "app",
+        number: "Question 4 / 10 (Application)",
+        question: "Analyse de la paire : [ləʒyʒadi # lavɔkaɛtɛ̃kɔ̃petɑ̃]. Qui est considéré comme incompétent ?",
+        options: [
+            "A) Le juge déclarant que l'avocat est incompétent.",
+            "B) L'avocat déclarant que le juge est incompétent.",
+            "C) Le greffier.",
+            "D) Les deux sont incompétents."
+        ],
+        correct: 0,
+        explanation: "Avec la joncture après 'dit', le premier groupe est « Le juge a dit », suivi de la citation : « L'avocat est incompétent ». C'est donc l'avocat qui est jugé incompétent."
+    },
+    {
+        id: 15,
+        section: "app",
+        number: "Question 5 / 10 (Application)",
+        question: "Pour insister fortement sur le mot « Idiot ! », quelle stratégie phonétique utilise le coup de glotte ?",
+        options: [
+            "A) On supprime le 'd'.",
+            "B) On insère la contraction [ʔ] devant la voyelle initiale : [ʔidjo].",
+            "C) On allonge la voyelle finale [o:] pendant 3 secondes.",
+            "D) On Chante le mot sur deux notes."
+        ],
+        correct: 1,
+        explanation: "Le coup de glotte [ʔ] est une fermeture brusque des cordes vocales placée avant la voyelle initiale d'un mot commençant par une voyelle pour renforcer l'insistance."
+    },
+    {
+        id: 16,
+        section: "app",
+        number: "Question 6 / 10 (Application)",
+        question: "Dans la Figure 8.1 « Une chose ahurissante ! », comment se manifeste l'accent d'insistance sur le plan acoustique ?",
+        options: [
+            "A) Par un grand écart mélodique vers l'aigu (pic de fréquence Hz).",
+            "B) Par un silence de 2 secondes au milieu du mot.",
+            "C) Par un murmure inaudible.",
+            "D) Par une voix totalement monotone."
+        ],
+        correct: 0,
+        explanation: "Le graphique de la Figure 8.1 montre une montée très aiguë de la fréquence fondamentale (Hz) sur la syllabe expressive de « ahurissante »."
+    },
+    {
+        id: 17,
+        section: "app",
+        number: "Question 7 / 10 (Application)",
+        question: "En anglais, quelle est la différence de sens entre « A green house » et « A greenhouse » ?",
+        options: [
+            "A) Aucune différence.",
+            "B) « A green house » est une maison peinte en vert ; « A greenhouse » est une serre.",
+            "C) « A green house » est une serre ; « A greenhouse » est une maison écologique.",
+            "D) L'un est du singulier, l'autre du pluriel."
+        ],
+        correct: 1,
+        explanation: "C'est l'exemple type du rôle distinctif de l'accent de mot en anglais : l'accent composé distingue le syntagme adjectif+nom du nom composé figé."
+    },
+    {
+        id: 18,
+        section: "app",
+        number: "Question 8 / 10 (Application)",
+        question: "En espagnol, que distingue le déplacement d'accent entre « canto » et « cantó » ?",
+        options: [
+            "A) « canto » = présent (je chante) ; « cantó » = passé simple (il chanta).",
+            "B) Le masculin et le féminin.",
+            "C) Un nom et un adjectif.",
+            "D) Une affirmation et une négation."
+        ],
+        correct: 0,
+        explanation: "En espagnol, la position de l'accent tonique distingue les personnes et les temps verbaux (cánto = 1re pers. sing. présent / cantó = 3e pers. sing. passé simple)."
+    },
+    {
+        id: 19,
+        section: "app",
+        number: "Question 9 / 10 (Application)",
+        question: "Dans la comptine « Une poule sur un mur / Qui picore du pain dur », quel rythme est appliqué ?",
+        options: [
+            "A) Un rythme ternaire complexe.",
+            "B) Un rythme binaire cadencé pour le jeu.",
+            "C) Une absence totale de rythme.",
+            "D) Un alexandrin classique."
+        ],
+        correct: 1,
+        explanation: "Comme expliqué dans le texte (p. 85-86), les comptines enfantines utilisent des déplacements d'accents pour créer une cadence binaire stricte."
+    },
+    {
+        id: 20,
+        section: "app",
+        number: "Question 20 / 10 (Application)",
+        question: "Dans l'étude de Laure Hesbois sur « Les petits nains de la montagne », quelle est la structure de la dernière mesure ?",
+        options: [
+            "A) 1 + 1",
+            "B) 2 + 2",
+            "C) 2 + 2 + 2 + 2 + 1 (« Cric crin cric crin cric crin croc »)",
+            "D) 3 + 3 + 3"
+        ],
+        correct: 2,
+        explanation: "La structure suit un schéma rythmique croissant qui culmine dans la longue séquence accumulative 2+2+2+2+1 soulignant la frénésie des nains."
+    }
+];
+
+let currentSection = 'concept';
+let currentQuestionIndex = 0;
+let userAnswers = {};
+
+function getSectionQuestions() {
+    return quizData.filter(q => q.section === currentSection);
+}
+
+function renderQuestion() {
+    const questions = getSectionQuestions();
+    const q = questions[currentQuestionIndex];
+    const container = document.getElementById('quiz-container');
+
+    // Update Progress
+    document.getElementById('progress-text').innerText = `Question ${currentQuestionIndex + 1} / ${questions.length}`;
+    document.getElementById('section-title').innerText = currentSection === 'concept' ? 'Section 1 : Notions Théoriques' : 'Section 2 : Exercices d\'Application';
+    document.getElementById('progress-fill').style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+
+    const isAnswered = userAnswers[q.id] !== undefined;
+
+    let optionsHTML = '';
+    q.options.forEach((opt, idx) => {
+        let btnClass = 'option-btn';
+        if (isAnswered) {
+            if (idx === q.correct) {
+                btnClass += ' selected-correct';
+            } else if (userAnswers[q.id] === idx) {
+                btnClass += ' selected-incorrect';
+            }
+        }
+
+        optionsHTML += `
+            <button class="${btnClass}" onclick="selectAnswer(${q.id}, ${idx})" ${isAnswered ? 'disabled' : ''}>
+                <span>${opt}</span>
+                ${isAnswered && idx === q.correct ? '<i class="fa-solid fa-circle-check"></i>' : ''}
+                ${isAnswered && userAnswers[q.id] === idx && idx !== q.correct ? '<i class="fa-solid fa-circle-xmark"></i>' : ''}
+            </button>
+        `;
+    });
+
+    container.innerHTML = `
+        <div class="quiz-card active">
+            <div class="question-number">${q.number}</div>
+            <div class="question-text">${q.question}</div>
+            <div class="options-grid">${optionsHTML}</div>
+            
+            <div class="explanation-box ${isAnswered ? 'show' : ''}">
+                <h4><i class="fa-solid fa-lightbulb"></i> Explication Détaillée :</h4>
+                <p>${q.explanation}</p>
+            </div>
+
+            <div class="action-nav">
+                <button class="btn-nav" onclick="prevQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>
+                    <i class="fa-solid fa-arrow-left"></i> Précédent
+                </button>
+                <button class="btn-nav" onclick="nextQuestion()">
+                    ${currentQuestionIndex === questions.length - 1 ? 'Voir le Bilan <i class="fa-solid fa-flag-checkered"></i>' : 'Suivant <i class="fa-solid fa-arrow-right"></i>'}
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function selectAnswer(questionId, optionIndex) {
+    userAnswers[questionId] = optionIndex;
+    renderQuestion();
+}
+
+function nextQuestion() {
+    const questions = getSectionQuestions();
+    if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+    }
+}
+
+function switchSection(section) {
+    currentSection = section;
+    currentQuestionIndex = 0;
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    if (section === 'concept') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    }
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('quiz-container').style.display = 'block';
+    renderQuestion();
+}
+
+function showResults() {
+    document.getElementById('quiz-container').style.display = 'none';
+    const resultScreen = document.getElementById('result-screen');
+    resultScreen.style.display = 'block';
+
+    const questions = getSectionQuestions();
+    let score = 0;
+    questions.forEach(q => {
+        if (userAnswers[q.id] === q.correct) {
+            score++;
+        }
+    });
+
+    document.getElementById('final-score').innerHTML = `${score}/${questions.length} <span>Points</span>`;
+    
+    let msg = "";
+    if (score === questions.length) {
+        msg = "Excellente maîtrise ! Vous avez assimilé parfaitement tous les concepts de phonétique prosodique.";
+    } else if (score >= questions.length * 0.7) {
+        msg = "Très bon travail ! Vos connaissances sur l'accentuation française sont solides.";
+    } else {
+        msg = "Certains points nécessitent une révision. N'hésitez pas à relire les diapositives de cours.";
+    }
+    document.getElementById('feedback-message').innerText = msg;
+}
+
+function restartQuiz() {
+    userAnswers = {};
+    currentQuestionIndex = 0;
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('quiz-container').style.display = 'block';
+    renderQuestion();
+}
+
+// Initial Call
+renderQuestion();
+</script>
+
+</body>
+</html>
